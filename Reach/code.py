@@ -19,93 +19,6 @@ submit = ImageTk.PhotoImage(submit_path)
 # text.config(font=("Bold",30))
 # text.grid(row=3,column=0,columnspan=8,padx=5,pady=5)
 
-add_customer_frame = Frame(root, bg='blue', borderwidth=5, padx=20, pady=20)
-add_customer_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=N)
-
-login_frame = Frame(root)
-login_frame.grid(row=0, column=0)
-
-donate_window = Frame(root)
-donate_window.grid(row=0, column=0)
-
-def sample():
-    reg_btn['state'] = 'disabled'
-    login_btn['state'] = 'normal'
-    return_btn['state'] = 'normal'
-
-    text.grid_forget()
-    login_frame.grid_forget()
-    add_customer_frame.grid_forget()
-
-    global donate_window
-
-    donate_window = Frame(root, bg='blue', borderwidth=5, padx=20, pady=20)
-    donate_window.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=N)
-
-    #first name widget
-    first_name_label = Label(donate_window,text="Food name/type", padx=5, pady=5, width=20
-    , anchor=W)
-    first_name_label.config(font=("Bold",15))
-    first_name_label.grid(row=0,column=0, padx=15, pady=15, sticky=W)
-
-    first_name_entry = Entry(donate_window,borderwidth=3,width=15)
-    first_name_entry.config(font=8)
-    first_name_entry.grid(row=0,column=1, padx=15,sticky=E)
-
-    #last name widget
-    last_name_label = Label(donate_window,text="Quantity", padx=5, pady=5, width=15, anchor=W)
-    last_name_label.config(font=("Bold",15))
-    last_name_label.grid(row=1,column=0, padx=15, pady=15, sticky=W)
-
-    last_name_entry = Entry(donate_window,borderwidth=3,width=15)
-    last_name_entry.config(font=8)
-    last_name_entry.grid(row=1,column=1, padx=15,sticky=E)
-
-    #age widget
-    age_label = Label(donate_window,text="Age",padx=5, pady=5, width=15, anchor=W)
-    age_label.config(font=("Bold",15))
-    age_label.grid(row=2,column=0, padx=15, pady=15, sticky=W)
-
-    age_entry = Entry(donate_window,borderwidth=3,width=15)
- 
-    age_entry.config(font=8)
-    age_entry.grid(row=2,column=1, padx=15,sticky=E)
-
-    #phone number widget
-    phone_no_label = Label(donate_window,text="Phone No", padx=5, pady=5, width=15, anchor=W)
-    phone_no_label.config(font=("Bold",15))
-    phone_no_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
-
-    phone_entry = Entry(donate_window,borderwidth=3,width=15)
-    phone_entry.config(font=8)
-    phone_entry.grid(row=3,column=1, padx=15,sticky=E)
-
-    # DL number widget
-    dl_no_label = Label(add_customer_frame,text="DL Number", padx=5, pady=5, width=15, anchor=W)
-    dl_no_label.config(font=("Bold",15))
-    dl_no_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
-
-    dl_no_entry = Entry(add_customer_frame,borderwidth=3,width=15)
-    dl_no_entry.config(font=8)
-    dl_no_entry.grid(row=4,column=1, padx=15,sticky=E)
-
-    #gender number widget
-    gender_label = Label(add_customer_frame,text="Gender", padx=5, pady=5, width=12, anchor=W)
-    gender_label.config(font=("Bold",15))
-    gender_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
-
-    frame_2 = LabelFrame(add_customer_frame)
-    frame_2.grid(row=5, column=1, columnspan=3)
-
-    r = StringVar()
-
-    Radiobutton(add_customer_frame, text="Male", variable=r, value="M", font=("Bold",12)).place(x=200, y=350)
-    Radiobutton(add_customer_frame, text="Female", variable=r, value="F", font=("Bold",12)).place(x=265, y=350)
-    Radiobutton(add_customer_frame, text="Others", variable=r, value="Other", font=("Bold",12)).place(x=350, y=350)
-
-    button_submit = Button(donate_window,image=submit,padx=32,pady=9,fg="white",background="blue",borderwidth=2,relief=FLAT, command=lambda: customer_db(first_name_entry.get(), last_name_entry.get(), age_entry.get(), phone_entry.get(), dl_no_entry.get(), r.get()))
-    button_submit.config(font=("Helvetica", 15))
-    button_submit.grid(row=6, column=0, columnspan=3, padx=20, pady=20)
 
 def register():
     register_win=Toplevel(root)
@@ -165,14 +78,14 @@ def register():
     phone_entry.config(font=8)
     phone_entry.grid(row=4,column=1, padx=15,sticky=E)
 
-    # #DL number widget
-    # dl_no_label = Label(register_frame,text="DL Number", padx=5, pady=5, width=15, anchor=W)
-    # dl_no_label.config(font=("Bold",15))
-    # dl_no_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
+    #register password widget
+    reg_pasword_label = Label(register_frame,text="Password", padx=5, pady=5, width=15, anchor=W)
+    reg_pasword_label.config(font=("Bold",15))
+    reg_pasword_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
 
-    # dl_no_entry = Entry(register_frame,borderwidth=3,width=15)
-    # dl_no_entry.config(font=8)
-    # dl_no_entry.grid(row=5,column=1, padx=15,sticky=E)
+    reg_password_entry = Entry(register_frame,borderwidth=3,width=15)
+    reg_password_entry.config(font=8)
+    reg_password_entry.grid(row=5,column=1, padx=15,sticky=E)
 
     # #gender number widget
     # gender_label = Label(register_frame,text="Gender", padx=5, pady=5, width=12, anchor=W)
@@ -206,27 +119,27 @@ def login():
     login_frame = Frame(login_win, bg='blue', borderwidth=5, padx=20, pady=20)
     login_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=NSEW)
 
-    #first name widget
-    first_name_label = Label(login_frame,text="First Name", padx=5, pady=5, width=15, anchor=W)
-    first_name_label.config(font=("Bold",15))
-    first_name_label.grid(row=0,column=0, padx=15, pady=15, sticky=W)
+    #Reg phone no widget
+    reg_phone_label = Label(login_frame,text="Registered phone no.", padx=5, pady=5, width=17, anchor=W)
+    reg_phone_label.config(font=("Bold",15))
+    reg_phone_label.grid(row=0,column=0, padx=15, pady=15, sticky=W)
 
-    first_name_entry = Entry(login_frame,borderwidth=3,width=15)
-    first_name_entry.config(font=8)
-    first_name_entry.grid(row=0,column=1, padx=15,sticky=E)
+    reg_phone_entry = Entry(login_frame,borderwidth=3,width=15)
+    reg_phone_entry.config(font=8)
+    reg_phone_entry.grid(row=0,column=1, padx=15,sticky=E)
 
-    #last name widget
-    last_name_label = Label(login_frame,text="Last Name", padx=5, pady=5, width=15, anchor=W)
-    last_name_label.config(font=("Bold",15))
-    last_name_label.grid(row=1,column=0, padx=15, pady=15, sticky=W)
+    #login password widget
+    log_password_label = Label(login_frame,text="Password", padx=5, pady=5, width=17, anchor=W)
+    log_password_label.config(font=("Bold",15))
+    log_password_label.grid(row=1,column=0, padx=15, pady=15, sticky=W)
 
     last_name_entry = Entry(login_frame,borderwidth=3,width=15)
     last_name_entry.config(font=8)
     last_name_entry.grid(row=1,column=1, padx=15,sticky=E)
 
-    button_submit = Button(login_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED)
-    button_submit.config(font=("Helvetica", 15))
-    button_submit.grid(row=6, column=0, columnspan=3, padx=20, pady=20)
+    log_password_label = Button(login_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED)
+    log_password_label.config(font=("Helvetica", 15))
+    log_password_label.grid(row=6, column=0, columnspan=3, padx=20, pady=20)
 
 
 head_label = Label(root, text="Reach",background="#0A79DF",fg="white",width=65,padx=14,pady=10,anchor=W)
@@ -285,16 +198,16 @@ def donor():
     donor_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=N)
 
     #Food type widget
-    food_type_label = Label(donor_frame,text="Food Type", padx=5, pady=5, width=15, anchor=W)
+    food_type_label = Label(donor_frame,text="Food Type", padx=5, pady=5, width=17, anchor=W)
     food_type_label.config(font=("Bold",15))
-    food_type_label.grid(row=1,column=0, padx=15, pady=15, sticky=W)
+    food_type_label.grid(row=1,column=0, padx=15, pady=15,columnspan=50, sticky=W)
 
     food_type_entry = Entry(donor_frame,borderwidth=3,width=15)
     food_type_entry.config(font=8)
     food_type_entry.grid(row=1,column=1, padx=15,sticky=E)
 
     #food name widget
-    food_name_label = Label(donor_frame,text="Food Name/Category", padx=5, pady=5, width=15, anchor=W)
+    food_name_label = Label(donor_frame,text="Food Name/Category", padx=5, pady=5, width=17, anchor=W)
     food_name_label.config(font=("Bold",15))
     food_name_label.grid(row=2,column=0, padx=15, pady=15, sticky=W)
 
@@ -312,7 +225,7 @@ def donor():
     # age_entry.grid(row=3,column=1, padx=15,sticky=E)
 
     #food quantity widget
-    quantity_label = Label(donor_frame,text="Phone No", padx=5, pady=5, width=15, anchor=W)
+    quantity_label = Label(donor_frame,text="Phone No", padx=5, pady=5, width=17, anchor=W)
     quantity_label.config(font=("Bold",15))
     quantity_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
 
@@ -321,7 +234,7 @@ def donor():
     quantity_entry.grid(row=4,column=1, padx=15,sticky=E)
 
     #city widget
-    city_label = Label(donor_frame,text="City", padx=5, pady=5, width=15, anchor=W)
+    city_label = Label(donor_frame,text="City", padx=5, pady=5, width=17, anchor=W)
     city_label.config(font=("Bold",15))
     city_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
 
@@ -330,7 +243,7 @@ def donor():
     city__entry.grid(row=5,column=1, padx=15,sticky=E)
 
     #pin code widget
-    pin_code_label = Label(donor_frame,text="Pin code", padx=5, pady=5, width=15, anchor=W)
+    pin_code_label = Label(donor_frame,text="Pin code", padx=5, pady=5, width=17, anchor=W)
     pin_code_label.config(font=("Bold",15))
     pin_code_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
 
