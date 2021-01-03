@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 root = Tk()
 root.state('zoomed') 
 root['bg'] = 'white'
-bg1=PhotoImage(file='bg1.png')
+bg1=PhotoImage(file='food5.png')
 submit_path = Image.open('icons\submit.png')
 submit = ImageTk.PhotoImage(submit_path)
 # submit = PhotoImage(file='submit.png')
@@ -34,13 +34,13 @@ def register():
 
     register_frame = Frame(register_win, bg='blue', borderwidth=5, padx=20, pady=20)
     register_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=N)
-    register_frame.state('Zoomed')
+
 
     #selection widget
     selection_donate=Radiobutton(register_frame, text="Donate", value="M", font=("Bold",12))
     selection_donate.grid(row=0,column=0)
 
-    selection_volunteer=Radiobutton(register_frame, text="Volunteer", value="M", font=("Bold",12))
+    selection_volunteer=Radiobutton(register_frame, text="Volunteer", value="F", font=("Bold",12))
     selection_volunteer.grid(row=0,column=1)
 
     #first name widget
