@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 root = Tk()
 root.state('zoomed') 
 root['bg'] = 'white'
-bg1=PhotoImage(file='bg1.png')
+bg1=PhotoImage(file='food5.png')
 submit_path = Image.open('icons\submit.png')
 submit = ImageTk.PhotoImage(submit_path)
 # submit = PhotoImage(file='submit.png')
@@ -300,15 +300,15 @@ landing_frame.grid(row=2,column=0,columnspan=8)
 label=Label(landing_frame,image=bg1)
 label.pack(anchor=NW)
 
-login_btn = Button(landing_frame, text="Login", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=60,pady=60, command=login)
-login_btn.place(x=300,y=450)
+login_btn = Button(landing_frame, text="Login", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=60,pady=20, command=login)
+login_btn.place(x=250,y=350)
 
-reg_btn = Button(landing_frame, text="Register", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=60,pady=60, command=register)
-reg_btn.place(x=700,y=450)
+reg_btn = Button(landing_frame, text="Register", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=60,pady=20, command=register)
+reg_btn.place(x=750,y=350)
 
-quote = Label(landing_frame, text='Welcome to Reach',fg="orange")
-quote.config(font=("Bold",30))
-quote.place(x=50,y=200)
+quote = Label(landing_frame, text='Welcome To Reach',fg="black" , bg="orange")
+quote.config(font=("Bold",50))
+quote.place(x=350,y=200)
 
 
 # donate_btn = Button(landing_frame, text="Donate", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=30,pady=30, command=donate)
