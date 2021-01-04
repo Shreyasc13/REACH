@@ -23,7 +23,6 @@ submit = ImageTk.PhotoImage(submit_path)
 def donor(selected):
     donor_win=Toplevel(root)
 
-    label=Label(donor_win,text=selected).pack()
 
     # reg_btn['state'] = 'disabled'
     # login_btn['state'] = 'normal'
