@@ -4,6 +4,17 @@ import datetime
 import time
 import sqlite3
 from PIL import Image, ImageTk
+import mysql.connector
+
+
+mydb=mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="!Ka19p9220",
+    auth_plugin='mysql_native_password',
+    database='reach',
+)
+cur=mydb.cursor()
 
 
 root = Tk()
@@ -66,31 +77,31 @@ def donor(selected):
     # age_entry.grid(row=3,column=1, padx=15,sticky=E)
 
     #food quantity widget
-    quantity_label = Label(donor_frame,text="Phone No", padx=5, pady=5, width=17, anchor=W)
+    quantity_label = Label(donor_frame,text="Quantity", padx=5, pady=5, width=17, anchor=W)
     quantity_label.config(font=("Bold",15))
-    quantity_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
+    quantity_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
 
     quantity_entry = Entry(donor_frame,borderwidth=3,width=15)
     quantity_entry.config(font=8)
-    quantity_entry.grid(row=4,column=1, padx=15,sticky=E)
+    quantity_entry.grid(row=3,column=1, padx=15,sticky=E)
 
     #city widget
     city_label = Label(donor_frame,text="City", padx=5, pady=5, width=17, anchor=W)
     city_label.config(font=("Bold",15))
-    city_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
+    city_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
 
     city__entry = Entry(donor_frame,borderwidth=3,width=15)
     city__entry.config(font=8)
-    city__entry.grid(row=5,column=1, padx=15,sticky=E)
+    city__entry.grid(row=4,column=1, padx=15,sticky=E)
 
     #pin code widget
     pin_code_label = Label(donor_frame,text="Pin code", padx=5, pady=5, width=17, anchor=W)
     pin_code_label.config(font=("Bold",15))
     pin_code_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
 
-    pin_code__entry = Entry(donor_frame,borderwidth=3,width=15)
-    pin_code__entry.config(font=8)
-    pin_code__entry.grid(row=5,column=1, padx=15,sticky=E)
+    pin_code_entry = Entry(donor_frame,borderwidth=3,width=15)
+    pin_code_entry.config(font=8)
+    pin_code_entry.grid(row=5,column=1, padx=15,sticky=E)
     
     # #gender number widget
     # gender_label = Label(donor_frame,text="Gender", padx=5, pady=5, width=12, anchor=W)
@@ -106,7 +117,7 @@ def donor(selected):
     # Radiobutton(donor_frame, text="Female", variable=r, value="F", font=("Bold",12)).place(x=265, y=350)
     # Radiobutton(donor_frame, text="Others", variable=r, value="Other", font=("Bold",12)).place(x=350, y=350)
 
-    donor_submit = Button(donor_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: customer_db(first_name_entry.get(), last_name_entry.get(), age_entry.get(), phone_entry.get(), dl_no_entry.get(), r.get()))
+    donor_submit = Button(donor_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: food_db(food_type_entry.get(), food_name_entry.get(), quantity_entry.get(), city__entry.get(), pin_code_entry.get()))
     donor_submit.config(font=("Helvetica", 15))
     donor_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
 
@@ -316,8 +327,23 @@ quote.place(x=350,y=200)
 # volunteer_btn = Button(landing_frame, text="Volunteer", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=60,pady=60)
 # volunteer_btn.place(x=700,y=450)
 
+# *****************Add info**************************
 
+def food_db(food_type,food_name, quantity, city,pin_code):
+    food_type_value = food_type
+    food_name_value = food_name
+    quantity_value = quantity
+    city_value = city
+    pin_code_value=pin_code
 
+    values = [food_type_value,food_name_value, quantity_value,  city_value,pin_code_value]
+
+    
+
+    cur.execute("INSERT INTO food_order(food_type_value, food_name_value, quantity_value, city_value, pin_code_value) VALUES (?, ?, ?, ?, ?)", values)
+
+    cur.commit()
+    cur.close()
 
 
 root.mainloop()
