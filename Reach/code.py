@@ -261,7 +261,7 @@ def login():
     button_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
 
 
-head_label = Label(root, text="Reach",background="#0A79DF",fg="white",width=65,padx=14,pady=10,anchor=W)
+head_label = Label(root, text="Reach ",background="#0A79DF",fg="white",width=65,padx=14,pady=10,anchor=W)
 head_label.config(font=("Bold",30))
 
 
