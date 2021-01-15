@@ -1,5 +1,6 @@
 from tkinter import * 
 from tkinter import messagebox
+from tkinter import ttk
 import datetime
 import time
 import sqlite3
@@ -30,7 +31,43 @@ submit = ImageTk.PhotoImage(submit_path)
 # text.config(font=("Bold",30))
 # text.grid(row=3,column=0,columnspan=8,padx=5,pady=5)
 
+# *****************Add info**************************
 
+def food_db(food_type,food_name, quantity, address,pin_code):
+    mydb=mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="!Ka19p9220",
+    auth_plugin='mysql_native_password',
+    database='reach',
+    )
+    cur=mydb.cursor()    
+
+    cur.execute("INSERT INTO food_order(f_type,f_nam,quantity, f_location,pin_code) VALUES (%s,%s,%s,%s)",(food_type,food_name, quantity, address,pin_code))
+
+    cur.commit()
+    cur.close()
+
+
+#registration and login database
+def login_db(selection,fname,lname,phone,password):
+    print(selection,fname,lname,phone,password)
+    mydb=mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="!Ka19p9220",
+    auth_plugin='mysql_native_password',
+    database='reach',
+    )
+    cur=mydb.cursor()
+    if selection=="D":
+        cur.execute("INSERT INTO donor (f_name,l_name,phone_no,password) VALUES (%s,%s,%s,%s)",(fname,lname,phone,password))
+        
+    elif selection=="V":
+        cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password) VALUES (%s,%s,%s,%s)",(fname,lname,phone,password))
+    mydb.commit()
+
+#donor food donation database
 def donor(selected):
     donor_win=Toplevel(root)
 
@@ -54,82 +91,59 @@ def donor(selected):
     food_type_label.config(font=("Bold",15))
     food_type_label.grid(row=1,column=0, padx=(15,30), pady=15, sticky=W)
 
-    food_type_entry = Entry(donor_frame,borderwidth=3,width=15)
-    food_type_entry.config(font=8)
-    food_type_entry.grid(row=1,column=1, padx=15,sticky=E)
+    food_type_combo=ttk.Combobox(donor_frame,font=("Bold",13))
+    food_type_combo['values']=("Veg","Non-Veg")
+    food_type_combo.grid(row=1,column=1, padx=15,sticky=E)
+
+
 
     #food name widget
     food_name_label = Label(donor_frame,text="Food Name/Category", padx=5, pady=5, width=17, anchor=W)
     food_name_label.config(font=("Bold",15))
     food_name_label.grid(row=2,column=0, padx=15, pady=15, sticky=W)
 
-    food_name_entry = Entry(donor_frame,borderwidth=3,width=15)
+    food_name_entry = Entry(donor_frame,borderwidth=3,width=22)
     food_name_entry.config(font=8)
     food_name_entry.grid(row=2,column=1, padx=15,sticky=E)
 
-    # #age widget
-    # age_label = Label(register_frame,text="Age",padx=5, pady=5, width=15, anchor=W)
-    # age_label.config(font=("Bold",15))
-    # age_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
-
-    # age_entry = Entry(register_frame,borderwidth=3,width=15)
-    # age_entry.config(font=8)
-    # age_entry.grid(row=3,column=1, padx=15,sticky=E)
+  
 
     #food quantity widget
     quantity_label = Label(donor_frame,text="Quantity", padx=5, pady=5, width=17, anchor=W)
     quantity_label.config(font=("Bold",15))
     quantity_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
 
-    quantity_entry = Entry(donor_frame,borderwidth=3,width=15)
+    quantity_entry = Entry(donor_frame,borderwidth=3,width=22)
     quantity_entry.config(font=8)
     quantity_entry.grid(row=3,column=1, padx=15,sticky=E)
 
     #city widget
-    city_label = Label(donor_frame,text="City", padx=5, pady=5, width=17, anchor=W)
+    city_label = Label(donor_frame,text="Address", padx=5, pady=5, width=17, anchor=W)
     city_label.config(font=("Bold",15))
     city_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
 
-    city__entry = Entry(donor_frame,borderwidth=3,width=15)
-    city__entry.config(font=8)
-    city__entry.grid(row=4,column=1, padx=15,sticky=E)
+    city_entry = Text(donor_frame,borderwidth=3,width=22,height=4)
+    city_entry.config(font=8)
+    city_entry.grid(row=4,column=1, padx=15,sticky=E)
 
     #pin code widget
     pin_code_label = Label(donor_frame,text="Pin code", padx=5, pady=5, width=17, anchor=W)
     pin_code_label.config(font=("Bold",15))
     pin_code_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
 
-    pin_code_entry = Entry(donor_frame,borderwidth=3,width=15)
+    pin_code_entry = Entry(donor_frame,borderwidth=3,width=22)
     pin_code_entry.config(font=8)
     pin_code_entry.grid(row=5,column=1, padx=15,sticky=E)
     
-    # #gender number widget
-    # gender_label = Label(donor_frame,text="Gender", padx=5, pady=5, width=12, anchor=W)
-    # gender_label.config(font=("Bold",15))
-    # gender_label.grid(row=6,column=0, padx=15, pady=15, sticky=W)
+    
 
-    # frame_2 = LabelFrame(donor_frame)
-    # frame_2.grid(row=6, column=1, columnspan=3)
-
-    # r = StringVar()
-
-    # Radiobutton(donor_frame, text="Male", variable=r, value="M", font=("Bold",12)).place(x=200, y=350)
-    # Radiobutton(donor_frame, text="Female", variable=r, value="F", font=("Bold",12)).place(x=265, y=350)
-    # Radiobutton(donor_frame, text="Others", variable=r, value="Other", font=("Bold",12)).place(x=350, y=350)
-
-    donor_submit = Button(donor_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: food_db(food_type_entry.get(), food_name_entry.get(), quantity_entry.get(), city__entry.get(), pin_code_entry.get()))
+    donor_submit = Button(donor_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: food_db(food_type_combo.get(), food_name_entry.get(), quantity_entry.get(), city_entry.get("1.0",END), pin_code_entry.get()))
     donor_submit.config(font=("Helvetica", 15))
     donor_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
 
 def register():
     register_win=Toplevel(root)
-    # reg_btn['state'] = 'disabled'
-    # login_btn['state'] = 'normal'
-    # # return_btn['state'] = 'normal'
-
-    # text.grid_forget()
-    # login_frame.grid_forget()
-    # # return_frame.grid_forget()
+   
 
     global register_frame
 
@@ -139,11 +153,9 @@ def register():
     selection=StringVar()
 
     #selection widget
-    selection_donate=Radiobutton(register_frame, text="Donate",variable=selection, value="M", font=("Bold",12))
-    selection_donate.grid(row=0,column=0)
+    Radiobutton(register_frame, text="Donate",variable=selection, value="D", font=("Bold",12)).grid(row=0,column=0)
 
-    selection_volunteer=Radiobutton(register_frame, text="Volunteer",variable=selection, value="M", font=("Bold",12))
-    selection_volunteer.grid(row=0,column=1)
+    Radiobutton(register_frame, text="Volunteer",variable=selection, value="V", font=("Bold",12)).grid(row=0,column=1)
 
     #first name widget
     first_name_label = Label(register_frame,text="First Name", padx=5, pady=5, width=15, anchor=W)
@@ -163,14 +175,6 @@ def register():
     last_name_entry.config(font=8)
     last_name_entry.grid(row=2,column=1, padx=15,sticky=E)
 
-    # #age widget
-    # age_label = Label(register_frame,text="Age",padx=5, pady=5, width=15, anchor=W)
-    # age_label.config(font=("Bold",15))
-    # age_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
-
-    # age_entry = Entry(register_frame,borderwidth=3,width=15)
-    # age_entry.config(font=8)
-    # age_entry.grid(row=3,column=1, padx=15,sticky=E)
 
     #phone number widget
     phone_no_label = Label(register_frame,text="Phone No", padx=5, pady=5, width=15, anchor=W)
@@ -190,23 +194,9 @@ def register():
     reg_password_entry.config(font=8)
     reg_password_entry.grid(row=5,column=1, padx=15,sticky=E)
 
-    # #gender number widget
-    # gender_label = Label(register_frame,text="Gender", padx=5, pady=5, width=12, anchor=W)
-    # gender_label.config(font=("Bold",15))
-    # gender_label.grid(row=6,column=0, padx=15, pady=15, sticky=W)
+    
 
-    # frame_2 = LabelFrame(register_frame)
-    # frame_2.grid(row=6, column=1, columnspan=3)
-
-    # r = StringVar()
-
-    # Radiobutton(register_frame, text="Male", variable=r, value="M", font=("Bold",12)).place(x=200, y=350)
-    # Radiobutton(register_frame, text="Female", variable=r, value="F", font=("Bold",12)).place(x=265, y=350)
-    # Radiobutton(register_frame, text="Others", variable=r, value="Other", font=("Bold",12)).place(x=350, y=350)
-
-    #  button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: customer_db(first_name_entry.get(), last_name_entry.get(), age_entry.get(), phone_entry.get(), dl_no_entry.get(), r.get()))
-
-    button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=donor)
+    button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:login_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get()))
     button_submit.config(font=("Helvetica", 15))
     button_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
 
@@ -327,23 +317,6 @@ quote.place(x=350,y=200)
 # volunteer_btn = Button(landing_frame, text="Volunteer", font=("bold", 18), fg="white", bg="#2ecc72", relief=FLAT,padx=60,pady=60)
 # volunteer_btn.place(x=700,y=450)
 
-# *****************Add info**************************
-
-def food_db(food_type,food_name, quantity, city,pin_code):
-    food_type_value = food_type
-    food_name_value = food_name
-    quantity_value = quantity
-    city_value = city
-    pin_code_value=pin_code
-
-    values = [food_type_value,food_name_value, quantity_value,  city_value,pin_code_value]
-
-    
-
-    cur.execute("INSERT INTO food_order(food_type_value, food_name_value, quantity_value, city_value, pin_code_value) VALUES (?, ?, ?, ?, ?)", values)
-
-    cur.commit()
-    cur.close()
 
 
 root.mainloop()
