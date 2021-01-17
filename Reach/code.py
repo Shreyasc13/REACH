@@ -50,7 +50,7 @@ def food_db(food_type,food_name, quantity, address,pin_code):
 
 
 #registration and login database
-def login_db(selection,fname,lname,phone,password):
+def register_db(selection,fname,lname,phone,password,org_name,org_location):
     print(selection,fname,lname,phone,password)
     mydb=mysql.connector.connect(
     host="localhost",
@@ -63,10 +63,11 @@ def login_db(selection,fname,lname,phone,password):
     if selection=="D":
         cur.execute("INSERT INTO donor (f_name,l_name,phone_no,password) VALUES (%s,%s,%s,%s)",(fname,lname,phone,password))
         
+       
     elif selection=="V":
-        cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password) VALUES (%s,%s,%s,%s)",(fname,lname,phone,password))
+        cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location) VALUES (%s,%s,%s,%s,%s,%s)",(fname,lname,phone,password,org_name,org_location))
     mydb.commit()
-
+# donor = cur.execute("""SELECT * FROM donor WHERE PHONE= %s AND PASSWORD= %s""", ()) 
 #donor food donation database
 def donor(selected):
     donor_win=Toplevel(root)
@@ -144,18 +145,37 @@ def donor(selected):
 def register():
     register_win=Toplevel(root)
    
-
-    global register_frame
-
+    global register_frame,org_name_label,org_location_label
     register_frame = Frame(register_win, bg='blue', borderwidth=5, padx=20, pady=20)
     register_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=N)
+
+   
+
+
+    def add_org():
+        org_name_label['state']='normal'
+        org_name_entry['state']='normal'
+        org_location_label['state']='normal'
+        org_location_entry['state']='normal'
+
+
+    def rem_org():
+        # org_name_entry['bg']='black'
+        # org_location_entry['bg']='black'
+
+        org_name_label['state']='disabled'
+        org_name_entry['state']='disabled'
+        org_location_label['state']='disabled'
+        org_location_entry['state']='disabled'
+
+    
 
     selection=StringVar()
 
     #selection widget
-    Radiobutton(register_frame, text="Donate",variable=selection, value="D", font=("Bold",12)).grid(row=0,column=0)
+    Radiobutton(register_frame, text="Donate",variable=selection, value="D", font=("Bold",12),command=rem_org).grid(row=0,column=0)
 
-    Radiobutton(register_frame, text="Volunteer",variable=selection, value="V", font=("Bold",12)).grid(row=0,column=1)
+    Radiobutton(register_frame, text="Volunteer",variable=selection, value="V", font=("Bold",12),command=add_org).grid(row=0,column=1)
 
     #first name widget
     first_name_label = Label(register_frame,text="First Name", padx=5, pady=5, width=15, anchor=W)
@@ -194,11 +214,29 @@ def register():
     reg_password_entry.config(font=8)
     reg_password_entry.grid(row=5,column=1, padx=15,sticky=E)
 
+    #org name widget
+    org_name_label = Label(register_frame,text="Organization Name", padx=5, pady=5, width=15, anchor=W)
+    org_name_label.config(font=("Bold",15))
+    org_name_label.grid(row=6,column=0, padx=15, pady=15, sticky=W)
+
+    org_name_entry = Entry(register_frame,borderwidth=3,width=15)
+    org_name_entry.config(font=8)
+    org_name_entry.grid(row=6,column=1, padx=15,sticky=E)
+
+    #org location widget
+    org_location_label = Label(register_frame,text="Organization location", padx=5, pady=5, width=15, anchor=W)
+    org_location_label.config(font=("Bold",15))
+    org_location_label.grid(row=7,column=0, padx=15, pady=15, sticky=W)
+
+    org_location_entry = Entry(register_frame,borderwidth=3,width=15)
+    org_location_entry.config(font=8)
+    org_location_entry.grid(row=7,column=1, padx=15,sticky=E)
+
     
 
-    button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:login_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get()))
+    button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:register_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get(),org_location_entry.get(),org_location_entry.get()))
     button_submit.config(font=("Helvetica", 15))
-    button_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
+    button_submit.grid(row=8, column=0, columnspan=3, padx=20, pady=20)
 
 # login frame
 def login():
@@ -208,6 +246,15 @@ def login():
 
     # text.grid_forget()
     # add_customer_frame.grid_forget()
+    mydb=mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="!Ka19p9220",
+    auth_plugin='mysql_native_password',
+    database='reach',
+    )
+    
+    cur=mydb.cursor()
 
     login_frame = Frame(login_win, bg='blue', borderwidth=5, padx=20, pady=20)
     login_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=NSEW)
@@ -235,13 +282,24 @@ def login():
     log_password_label.config(font=("Bold",15))
     log_password_label.grid(row=1,column=0, padx=15, pady=15, sticky=W)
 
-    last_name_entry = Entry(login_frame,borderwidth=3,width=15)
-    last_name_entry.config(font=8)
-    last_name_entry.grid(row=1,column=1, padx=15,sticky=E)
+    log_password_entry = Entry(login_frame,borderwidth=3,width=15)
+    log_password_entry.config(font=8)
+    log_password_entry.grid(row=1,column=1, padx=15,sticky=E)
 
     def check(c):
+        
+     
+        # print(a)
+        ph=reg_phone_entry.get()
+        psw=log_password_entry.get()
+        cur.execute("SELECT * FROM donor WHERE phone_no=%s AND password=%s",(ph,psw))
+        a=cur.fetchall()
+
         if c=='D':
-            donor(c)
+            if len(a):
+                donor(c)
+            else:
+                messagebox.showerror('error','failed')
         else:
             print("volunteer")
        
