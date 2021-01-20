@@ -19,7 +19,7 @@ cur=con.cursor()
 # *****************Add info**************************
 
 
-#registration and login database
+#registration and login DATABASE
 def register_db(selection,fname,lname,phone,password,org_name,org_location):
 
     con=sqlite3.connect('reach2.db')
@@ -38,17 +38,7 @@ def register_db(selection,fname,lname,phone,password,org_name,org_location):
     con.close()
 
 def food_db(d_id,food_type,foodname,quantity,address,pin):
-    # con=sqlite3.connect('reach2.db')
-    # cur=con.cursor()
 
-    # address=address.rstrip("\n")
-
-    # values=(d_id,food_type,foodname,quantity,address,pin)
-    # print(values)
-    # cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code) VALUES (?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin))
-
-    # con.commit()
-    # con.close()
 
     with sqlite3.connect('reach2.db') as con:
         cur=con.cursor()
@@ -57,6 +47,65 @@ def food_db(d_id,food_type,foodname,quantity,address,pin):
         values=(d_id,food_type,foodname,quantity,address,pin)
         print(values)
         cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code) VALUES (?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin))
+
+def volunteer():
+    with sqlite3.connect('reach2.db') as con:
+        cur=con.cursor()
+
+        volunteer_win=Toplevel(root)
+        volunteer_frame=Frame(volunteer_win,bg='light blue',borderwidth=5,padx=20,pady=20)
+
+        volunteer_frame.pack()
+
+        cur.execute("SELECT * FROM food_order")
+        fd=cur.fetchall()
+        print(fd)
+
+
+        #food ID widget
+        food_name_label = Label(volunteer_frame,text="Selected Food  Id", padx=20, pady=5, width=17, anchor=W)
+        food_name_label.config(font=("Bold",15))
+        food_name_label.grid(row=2, column=0, padx=10, pady=2)
+        food_name_entry = Entry(volunteer_frame,borderwidth=3,width=22)
+        food_name_entry.config(font=8)
+        food_name_entry.grid(row=2, column=1, padx=10, pady=2)
+
+    
+
+        #delivery id widget
+        quantity_label = Label(volunteer_frame,text="Selected Delivery", padx=20, pady=5, width=17, anchor=W)
+        quantity_label.config(font=("Bold",15))
+        quantity_label.grid(row=3, column=0, padx=10, pady=2)
+
+        quantity_entry = Entry(volunteer_frame,borderwidth=3,width=22)
+        quantity_entry.config(font=8)
+        quantity_entry.grid(row=3, column=1, padx=10, pady=2)
+
+        headers=['Food Id','Food Type','Food Name','Quantity','f_location','Pin Code']
+        
+        for j in range(6):
+            e = Entry(volunteer_frame, width=20, borderwidth=2, bg="#7f8c8d", fg='white', highlightthickness=2)
+            e.config(highlightbackground = "#900C3F", highlightcolor= "#900C3F", relief=FLAT)
+            e.grid(row=0, column=j+2, padx=10, pady=2)
+            e.insert(END, headers[j])
+
+
+        for i in range(len(fd)):
+            e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
+            e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
+            e.grid(row=i+1, column=2, padx=10, pady=2)
+            e.insert(END, fd[i][0])
+
+            k=3
+
+            for j in range(1,6):
+                e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
+                e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
+                e.grid(row=i+1, column=k, padx=10, pady=2)
+                e.insert(END, fd[i][j+1])
+                k+=1
+
+# def delivery():
 
 
 
@@ -280,7 +329,7 @@ def login():
             cur.execute("SELECT * FROM volunteer WHERE phone_no=? AND password=?",(ph,psw))
             a=cur.fetchall()
             if len(a):
-                print('volunteer')
+                volunteer()
             else:
                 messagebox.showerror('error','Wrong credentials')
   
