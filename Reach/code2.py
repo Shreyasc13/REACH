@@ -20,7 +20,7 @@ cur=con.cursor()
 
 
 #registration and login DATABASE
-def register_db(selection,fname,lname,phone,password,org_name,org_location):
+def register_db(selection,fname,lname,phone,password,org_name,location):
 
     con=sqlite3.connect('reach2.db')
     cur=con.cursor()
@@ -31,8 +31,10 @@ def register_db(selection,fname,lname,phone,password,org_name,org_location):
         
        
     elif selection=="V":
-        cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location) VALUES (?,?,?,?,?,?)",(fname,lname,phone,password,org_name,org_location))
+        cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location) VALUES (?,?,?,?,?,?)",(fname,lname,phone,password,org_name,location))
 
+    elif selection=="DL":
+        cur.execute("INSERT INTO delivery_info(del_name,del_phone,del_password,del_location) VALUES(?,?,?,?)",(fname,phone,password,location))
 
     con.commit()
     con.close()
@@ -48,6 +50,8 @@ def food_db(d_id,food_type,foodname,quantity,address,pin):
         print(values)
         cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code) VALUES (?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin))
 
+    
+
 def volunteer():
     with sqlite3.connect('reach2.db') as con:
         cur=con.cursor()
@@ -61,6 +65,10 @@ def volunteer():
         fd=cur.fetchall()
         print(fd)
 
+        cur.execute("SELECT * from delivery_info")
+        di=cur.fetchall()
+        print(di)
+
 
         #food ID widget
         food_name_label = Label(volunteer_frame,text="Selected Food  Id", padx=20, pady=5, width=17, anchor=W)
@@ -73,7 +81,7 @@ def volunteer():
     
 
         #delivery id widget
-        quantity_label = Label(volunteer_frame,text="Selected Delivery", padx=20, pady=5, width=17, anchor=W)
+        quantity_label = Label(volunteer_frame,text="Selected Delivery ID", padx=20, pady=5, width=17, anchor=W)
         quantity_label.config(font=("Bold",15))
         quantity_label.grid(row=3, column=0, padx=10, pady=2)
 
@@ -91,21 +99,36 @@ def volunteer():
 
 
         for i in range(len(fd)):
-            e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
-            e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
-            e.grid(row=i+1, column=2, padx=10, pady=2)
-            e.insert(END, fd[i][0])
+            for j in range(0,6):
 
-            k=3
-
-            for j in range(1,6):
                 e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
                 e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
-                e.grid(row=i+1, column=k, padx=10, pady=2)
-                e.insert(END, fd[i][j+1])
-                k+=1
+                e.grid(row=i+1, column=j+2, padx=10, pady=2)
+                e.insert(END, fd[i][j])
 
-# def delivery():
+           
+
+        del_headers=['Delivery ID','Name','Phone','Location']
+
+        m=len(fd)+2
+
+        for j in range(4):
+            e = Entry(volunteer_frame, width=20, borderwidth=2, bg="#7f8c8d", fg='white', highlightthickness=2)
+            e.config(highlightbackground = "#900C3F", highlightcolor= "#900C3F", relief=FLAT)
+            e.grid(row=m, column=j+2, padx=10, pady=2)
+            e.insert(END, del_headers[j])
+
+
+        for i in range(len(di)):
+            for j in range(0,4):
+
+
+                e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
+                e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
+                e.grid(row=i+m+1, column=j+2, padx=10, pady=2)
+                if j==3:
+                    j+=1
+                e.insert(END, di[i][j])
 
 
 
@@ -178,7 +201,7 @@ def donor(d_id):
 def register():
     register_win=Toplevel(root)
    
-    global register_frame,org_name_label,org_location_label
+    global register_frame,org_name_label,location_label
     register_frame = Frame(register_win, bg='blue', borderwidth=5, padx=20, pady=20)
     register_frame.grid(row=3, column=0, columnspan=4, padx=20, pady=40, sticky=N)
 
@@ -188,8 +211,10 @@ def register():
     def add_org():
         org_name_label['state']='normal'
         org_name_entry['state']='normal'
-        org_location_label['state']='normal'
-        org_location_entry['state']='normal'
+        location_label['state']='normal'
+        location_entry['state']='normal'
+        last_name_label['state']='normal'
+        last_name_entry['state']='normal'
 
 
     def rem_org():
@@ -198,10 +223,16 @@ def register():
 
         org_name_label['state']='disabled'
         org_name_entry['state']='disabled'
-        org_location_label['state']='disabled'
-        org_location_entry['state']='disabled'
+        location_label['state']='disabled'
+        location_entry['state']='disabled'
+        last_name_label['state']='normal'
+        last_name_entry['state']='normal'
 
-    
+    def rem_del():
+        last_name_label['state']='disabled'
+        last_name_entry['state']='disabled'
+        org_name_label['state']='disabled'
+        org_name_entry['state']='disabled'
 
     selection=StringVar()
 
@@ -209,6 +240,8 @@ def register():
     Radiobutton(register_frame, text="Donate",variable=selection, value="D", font=("Bold",12),command=rem_org).grid(row=0,column=0)
 
     Radiobutton(register_frame, text="Volunteer",variable=selection, value="V", font=("Bold",12),command=add_org).grid(row=0,column=1)
+
+    Radiobutton(register_frame, text="Delivery",variable=selection, value="DL", font=("Bold",12),command=rem_del).grid(row=0,column=2)
 
     #first name widget
     first_name_label = Label(register_frame,text="First Name", padx=5, pady=5, width=15, anchor=W)
@@ -257,17 +290,17 @@ def register():
     org_name_entry.grid(row=6,column=1, padx=15,sticky=E)
 
     #org location widget
-    org_location_label = Label(register_frame,text="Organization location", padx=5, pady=5, width=15, anchor=W)
-    org_location_label.config(font=("Bold",15))
-    org_location_label.grid(row=7,column=0, padx=15, pady=15, sticky=W)
+    location_label = Label(register_frame,text="Location", padx=5, pady=5, width=15, anchor=W)
+    location_label.config(font=("Bold",15))
+    location_label.grid(row=7,column=0, padx=15, pady=15, sticky=W)
 
-    org_location_entry = Entry(register_frame,borderwidth=3,width=15)
-    org_location_entry.config(font=8)
-    org_location_entry.grid(row=7,column=1, padx=15,sticky=E)
+    location_entry = Entry(register_frame,borderwidth=3,width=15)
+    location_entry.config(font=8)
+    location_entry.grid(row=7,column=1, padx=15,sticky=E)
 
     
 
-    button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:register_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get(),org_location_entry.get(),org_location_entry.get()))
+    button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:register_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get(),org_name_entry.get(),location_entry.get()))
     button_submit.config(font=("Helvetica", 15))
     button_submit.grid(row=8, column=0, columnspan=3, padx=20, pady=20)
 
