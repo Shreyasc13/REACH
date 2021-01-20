@@ -50,9 +50,32 @@ def food_db(d_id,food_type,foodname,quantity,address,pin):
         print(values)
         cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code) VALUES (?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin))
 
-    
+def transaction_db(volunteer_id,food_id,delivery_id):
+        with sqlite3.connect('reach2.db') as con:
+            cur=con.cursor()
 
-def volunteer():
+
+
+            cur.execute("SELECT d_id from food_order where f_id=?", (food_id,))
+            donor_id=cur.fetchall()[0][0]
+            print(donor_id)
+            date_time=str(datetime.datetime.now())
+            # print(date_time)
+            # print(type(date_time))
+            dat, t = date_time.split(" ")
+            print(dat)
+            t = t.split(".")[0]
+            print(t)
+
+            date_time = " ".join((dat, t))
+            print(date_time)
+            
+            cur.execute("INSERT INTO transactions(date_time,d_id,v_id,f_id,del_id) VALUES (?,?,?,?,?)",(date_time,donor_id,volunteer_id,food_id,delivery_id))
+
+            
+
+
+def volunteer(v_id):
     with sqlite3.connect('reach2.db') as con:
         cur=con.cursor()
 
@@ -69,25 +92,26 @@ def volunteer():
         di=cur.fetchall()
         print(di)
 
+        volunteer_id=v_id
 
         #food ID widget
-        food_name_label = Label(volunteer_frame,text="Selected Food  Id", padx=20, pady=5, width=17, anchor=W)
-        food_name_label.config(font=("Bold",15))
-        food_name_label.grid(row=2, column=0, padx=10, pady=2)
-        food_name_entry = Entry(volunteer_frame,borderwidth=3,width=22)
-        food_name_entry.config(font=8)
-        food_name_entry.grid(row=2, column=1, padx=10, pady=2)
+        food_id_label = Label(volunteer_frame,text="Selected Food  Id", padx=20, pady=5, width=17, anchor=W)
+        food_id_label.config(font=("Bold",15))
+        food_id_label.grid(row=2, column=0, padx=10, pady=2)
+        food_id_entry = Entry(volunteer_frame,borderwidth=3,width=22)
+        food_id_entry.config(font=8)
+        food_id_entry.grid(row=2, column=1, padx=10, pady=2)
 
     
 
         #delivery id widget
-        quantity_label = Label(volunteer_frame,text="Selected Delivery ID", padx=20, pady=5, width=17, anchor=W)
-        quantity_label.config(font=("Bold",15))
-        quantity_label.grid(row=3, column=0, padx=10, pady=2)
+        delivery_id_label = Label(volunteer_frame,text="Selected Delivery Id", padx=20, pady=5, width=17, anchor=W)
+        delivery_id_label.config(font=("Bold",15))
+        delivery_id_label.grid(row=3, column=0, padx=10, pady=2)
 
-        quantity_entry = Entry(volunteer_frame,borderwidth=3,width=22)
-        quantity_entry.config(font=8)
-        quantity_entry.grid(row=3, column=1, padx=10, pady=2)
+        delivery_id_entry = Entry(volunteer_frame,borderwidth=3,width=22)
+        delivery_id_entry.config(font=8)
+        delivery_id_entry.grid(row=3, column=1, padx=10, pady=2)
 
         headers=['Food Id','Food Type','Food Name','Quantity','f_location','Pin Code']
         
@@ -130,7 +154,9 @@ def volunteer():
                     j+=1
                 e.insert(END, di[i][j])
 
-
+                button_submit = Button(volunteer_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:transaction_db(volunteer_id,food_id_entry.get(),delivery_id_entry.get()))
+                button_submit.config(font=("Helvetica", 15))
+                button_submit.grid(row=8, column=0, columnspan=3, padx=20, pady=20)
 
 def donor(d_id):
     donor_win=Toplevel(root)
@@ -362,7 +388,8 @@ def login():
             cur.execute("SELECT * FROM volunteer WHERE phone_no=? AND password=?",(ph,psw))
             a=cur.fetchall()
             if len(a):
-                volunteer()
+                v_id=cur.execute("SELECT v_id FROM volunteer WHERE phone_no=? AND password=?",(ph,psw)).fetchone()
+                volunteer(v_id[0])
             else:
                 messagebox.showerror('error','Wrong credentials')
   
