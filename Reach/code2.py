@@ -5,6 +5,8 @@ import datetime
 import time
 import sqlite3
 from PIL import Image, ImageTk
+import smtplib
+
 
 root = Tk()
 root.state('zoomed') 
@@ -20,21 +22,73 @@ cur=con.cursor()
 
 
 #registration and login DATABASE
+
+#MAIL function
+def mail():
+
+
+    subject = "Delivery"
+
+    msg = f"Subject:{subject}\n\n"
+
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+
+    #INSERT YOUR E-MAIL ID AND PASSWORD
+    server.login("shreyasc.cs18@sahyadri.edu.in", "$kA19P9220")
+    server.sendmail("shreyasc.cs18@sahyadri.edu.in","shreyasc13@gmail.com", msg)
+
+    server.quit()
+
+    messagebox.showinfo("Message Sent", "Message Sent Successfully")
+
 def register_db(selection,fname,lname,phone,password,org_name,location):
 
     con=sqlite3.connect('reach2.db')
     cur=con.cursor()
     
+    cur.execute('SELECT phone_no from donor')
+    volunteer_phone_no=cur.fetchall()
+    cur.execute('SELECT phone_no from volunteer')
+    donor_phone_no=cur.fetchall()
+    cur.execute('SELECT del_phone from delivery_info')
+    delivery_phone_no=cur.fetchall()
+
     print(selection,fname,lname,phone,password)
     if selection=="D":
-        cur.execute("INSERT INTO donor (f_name,l_name,phone_no,password) VALUES (?,?,?,?)",(fname,lname,phone,password))
+        if fname=='' or lname=='' or phone=='' or password=='':
+            messagebox.showwarning('INDEX ERROR', 'Enter all the details.')
+
+        elif int(phone) in [x[0] for x in donor_phone_no]:
+            messagebox.showinfo('INDEX ERROR','You already have an account')
+
+        else:
+            cur.execute("INSERT INTO donor (f_name,l_name,phone_no,password) VALUES (?,?,?,?)",(fname,lname,phone,password))
         
        
     elif selection=="V":
-        cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location) VALUES (?,?,?,?,?,?)",(fname,lname,phone,password,org_name,location))
+        # print([x[0] for x in volunteer_phone_no])
+        if fname=='' or lname=='' or phone=='' or password=='' or org_name=='' or location=='':
+            messagebox.showwarning('INDEX ERROR', 'Enter all the details')
+
+        elif int(phone) in [x[0] for x in volunteer_phone_no]:
+            messagebox.showinfo('INDEX ERROR','You already have an account.')
+
+        else:
+            # cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location) VALUES (?,?,?,?,?,?)",(fname,lname,phone,password,org_name,location))
+            print('else condition')
+            messagebox.showinfo('INDEX ERROR','Registered as volunteer successfully.')
 
     elif selection=="DL":
-        cur.execute("INSERT INTO delivery_info(del_name,del_phone,del_password,del_location) VALUES(?,?,?,?)",(fname,phone,password,location))
+        if fname=='' or phone=='' or password=='' or location=='':
+            messagebox.showwarning('INDEX ERROR', 'Enter all the details')
+
+        elif int(phone) in [x[0] for x in delivery_phone_no]:
+            messagebox.showinfo('INDEX ERROR','You already have an account.')
+
+
+        else:
+            cur.execute("INSERT INTO delivery_info(del_name,del_phone,del_password,del_location) VALUES(?,?,?,?)",(fname,phone,password,location))
 
     con.commit()
     con.close()
@@ -45,10 +99,15 @@ def food_db(d_id,food_type,foodname,quantity,address,pin):
     with sqlite3.connect('reach2.db') as con:
         cur=con.cursor()
         address=address.rstrip("\n")
+        address=address.rstrip("\t")
 
-        values=(d_id,food_type,foodname,quantity,address,pin,'1')
-        print(values)
-        cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code,status) VALUES (?,?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin,1))
+        if food_type or quantity or address or pin=='':
+            messagebox.showwarning('INDEX ERROR', 'Enter the Food details.')
+        else:
+
+            values=(d_id,food_type,foodname,quantity,address,pin,'1')
+            print(values)
+            cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code,status) VALUES (?,?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin,1))
 
 def transaction_db(volunteer_id,food_id,delivery_id):
         with sqlite3.connect('reach2.db') as con:
@@ -78,6 +137,7 @@ def update_food_db(f_id,d_id,food_type,foodname,quantity,address,pin):
     with sqlite3.connect('reach2.db') as con:
         cur=con.cursor()
         address=address.rstrip("\n")
+        address=address.rstrip("\t")
 
         values=(food_type,foodname,quantity,address,pin)
         print(values)
@@ -104,7 +164,7 @@ def donor_dash(d_id):
 
         head_label.grid(row=0,column=0,columnspan=5,padx=5,pady=5,sticky=W)
 
-        cur.execute("SELECT * FROM food_order WHERE d_id=? and status=?",(donor_id,'1',))
+        cur.execute("SELECT f_id,f_type,f_name,quantity,f_location,pin_code FROM food_order WHERE d_id=? and status=?",(donor_id,'1',))
         dd=cur.fetchall()
         print(dd)
 
@@ -123,10 +183,7 @@ def donor_dash(d_id):
                 e = Entry(donor_dash_frame, width=20, borderwidth=2, highlightthickness=2)
                 e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
                 e.grid(row=i+2, column=j, padx=10, pady=2)
-                if j==1:
-                    e.insert(END, dd[i][j+1])
-                else:
-                    e.insert(END, dd[i][j])
+                e.insert(END, dd[i][j])
               
 
         #food ID widget
@@ -151,75 +208,97 @@ def donor_dash(d_id):
         button_donate.grid(row=len(dd)+5, column=0, columnspan=3, padx=20, pady=20) 
 
 def update_food(f_id,d_id):
-    update_food_win=Toplevel(root)
-    # print(d_id)
+    with sqlite3.connect('reach2.db') as con:
+        cur=con.cursor()
+        global donor_dash_frame
+        update_food_win=Toplevel(root)
+        # print(d_id)
 
-    food_id=f_id
-    global update_food_frame
+        if f_id=='':
+            messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to delete.')
+        else:        
 
-    update_food_frame = Frame(update_food_win, bg='blue', borderwidth=5, padx=20, pady=20)
+            cur.execute("SELECT f_id,f_type,f_name,quantity,f_location,pin_code FROM food_order WHERE f_id=?",(f_id))
+            uf=cur.fetchall()
 
-    update_food_frame.pack()
-    #Food type widget
-    food_type_label = Label(update_food_frame,text="Food Type", padx=5, pady=5, width=17, anchor=W)
-    food_type_label.config(font=("Bold",15))
-    food_type_label.grid(row=1,column=0, padx=(15,30), pady=15, sticky=W)
+            food_id=f_id
+            global update_food_frame
 
-    food_type_combo=ttk.Combobox(update_food_frame,font=("Bold",13))
-    food_type_combo['values']=("Veg","Non-Veg")
-    food_type_combo.grid(row=1,column=1, padx=15,sticky=E)
+            update_food_frame = Frame(update_food_win, bg='blue', borderwidth=5, padx=20, pady=20)
+
+            if uf[0][1]=='Veg':
+                m='Non-Veg'
+            else:
+                m='Veg'
+
+            # print(m)
+            update_food_frame.pack()
+            #Food type widget
+            food_type_label = Label(update_food_frame,text="Food Type", padx=5, pady=5, width=17, anchor=W)
+            food_type_label.config(font=("Bold",15))
+            food_type_label.grid(row=1,column=0, padx=(15,30), pady=15, sticky=W)
+
+            food_type_combo=ttk.Combobox(update_food_frame,font=("Bold",13))
+            food_type_combo['values']=(uf[0][1],m)
+            food_type_combo.current('0')
+            food_type_combo.grid(row=1,column=1, padx=15,sticky=E)
 
 
 
-    #food name widget
-    food_name_label = Label(update_food_frame,text="Food Name/Category", padx=5, pady=5, width=17, anchor=W)
-    food_name_label.config(font=("Bold",15))
-    food_name_label.grid(row=2,column=0, padx=15, pady=15, sticky=W)
+            #food name widget
+            food_name_label = Label(update_food_frame,text="Food Name/Category", padx=5, pady=5, width=17, anchor=W)
+            food_name_label.config(font=("Bold",15))
+            food_name_label.grid(row=2,column=0, padx=15, pady=15, sticky=W)
 
-    food_name_entry = Entry(update_food_frame,borderwidth=3,width=22)
-    food_name_entry.config(font=8)
-    food_name_entry.grid(row=2,column=1, padx=15,sticky=E)
+            food_name_entry = Entry(update_food_frame,borderwidth=3,width=22)
+            food_name_entry.config(font=8)
+            food_name_entry.grid(row=2,column=1, padx=15,sticky=E)
+            food_name_entry.insert(END,uf[0][2])
+        
 
-  
+            #food quantity widget
+            quantity_label = Label(update_food_frame,text="Quantity", padx=5, pady=5, width=17, anchor=W)
+            quantity_label.config(font=("Bold",15))
+            quantity_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
 
-    #food quantity widget
-    quantity_label = Label(update_food_frame,text="Quantity", padx=5, pady=5, width=17, anchor=W)
-    quantity_label.config(font=("Bold",15))
-    quantity_label.grid(row=3,column=0, padx=15, pady=15, sticky=W)
+            quantity_entry = Entry(update_food_frame,borderwidth=3,width=22)
+            quantity_entry.config(font=8)
+            quantity_entry.grid(row=3,column=1, padx=15,sticky=E)
+            quantity_entry.insert(END,uf[0][3])
 
-    quantity_entry = Entry(update_food_frame,borderwidth=3,width=22)
-    quantity_entry.config(font=8)
-    quantity_entry.grid(row=3,column=1, padx=15,sticky=E)
+            #city widget
+            city_label = Label(update_food_frame,text="Address", padx=5, pady=5, width=17, anchor=W)
+            city_label.config(font=("Bold",15))
+            city_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
+            
+            city_entry = Text(update_food_frame,borderwidth=3,width=22,height=4)
+            city_entry.config(font=8)
+            city_entry.grid(row=4,column=1, padx=15,sticky=E)
+            city_entry.insert(END,uf[0][4])
 
-    #city widget
-    city_label = Label(update_food_frame,text="Address", padx=5, pady=5, width=17, anchor=W)
-    city_label.config(font=("Bold",15))
-    city_label.grid(row=4,column=0, padx=15, pady=15, sticky=W)
+            #pin code widget
+            pin_code_label = Label(update_food_frame,text="Pin code", padx=5, pady=5, width=17, anchor=W)
+            pin_code_label.config(font=("Bold",15))
+            pin_code_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
 
-    city_entry = Text(update_food_frame,borderwidth=3,width=22,height=4)
-    city_entry.config(font=8)
-    city_entry.grid(row=4,column=1, padx=15,sticky=E)
+            pin_code_entry = Entry(update_food_frame,borderwidth=3,width=22)
+            pin_code_entry.config(font=8)
+            pin_code_entry.grid(row=5,column=1, padx=15,sticky=E)
+            pin_code_entry.insert(END,uf[0][5])
+            
 
-    #pin code widget
-    pin_code_label = Label(update_food_frame,text="Pin code", padx=5, pady=5, width=17, anchor=W)
-    pin_code_label.config(font=("Bold",15))
-    pin_code_label.grid(row=5,column=0, padx=15, pady=15, sticky=W)
-
-    pin_code_entry = Entry(update_food_frame,borderwidth=3,width=22)
-    pin_code_entry.config(font=8)
-    pin_code_entry.grid(row=5,column=1, padx=15,sticky=E)
-    
-    
-
-    donor_submit = Button(update_food_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: update_food_db(food_id,d_id,food_type_combo.get(), food_name_entry.get(), quantity_entry.get(), city_entry.get("1.0",END), pin_code_entry.get()))
-    donor_submit.config(font=("Helvetica", 15))
-    donor_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
+            donor_submit = Button(update_food_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda: update_food_db(food_id,d_id,food_type_combo.get(), food_name_entry.get(), quantity_entry.get(), city_entry.get("1.0",END), pin_code_entry.get()))
+            donor_submit.config(font=("Helvetica", 15))
+            donor_submit.grid(row=7, column=0, columnspan=3, padx=20, pady=20)
 
 def delete_food(f_id,d_id):
         with sqlite3.connect('reach2.db') as con:
             cur=con.cursor()
 
-            cur.execute("UPDATE food_order SET status=? where f_id=? and d_id=?",(0,f_id,d_id))
+            if f_id=='':
+                messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to delete.')
+            else:
+                cur.execute("UPDATE food_order SET status=? where f_id=? and d_id=?",(0,f_id,d_id))
 
 
 def volunteer(v_id):
@@ -303,7 +382,7 @@ def volunteer(v_id):
 
                 button_submit = Button(volunteer_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:transaction_db(volunteer_id,food_id_entry.get(),delivery_id_entry.get()))
                 button_submit.config(font=("Helvetica", 15))
-                button_submit.grid(row=8, column=0, columnspan=3, padx=20, pady=20)
+                button_submit.grid(row=7,rowspan=10, column=0, columnspan=3, padx=20, pady=20)
 
 
 
