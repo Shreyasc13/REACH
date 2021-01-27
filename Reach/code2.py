@@ -2,10 +2,12 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 import datetime
-import time
 import sqlite3
 from PIL import Image, ImageTk
 import smtplib
+import re
+
+
 
 
 root = Tk()
@@ -24,28 +26,75 @@ cur=con.cursor()
 #registration and login DATABASE
 
 #MAIL function
-def mail():
+def mail(del_id,volunteer_id,donor_id,food_id):
+
+    with sqlite3.connect('reach2.db') as con:
+        cur=con.cursor()
+
+        print(del_id,volunteer_id,donor_id,food_id)
+
+        cur.execute("SELECT f_name,l_name,phone_no from donor where d_id=?",(donor_id,))
+        donor_details=cur.fetchall()[0]
+        
+        d_namef=([x[0] for x in donor_details])
+        d_namel=([x[1] for x in donor_details])
+        d_phone=([x[2] for x in donor_details])
+        # d_name=d_namef+d_namel
+
+        print(d_namef,d_namel,d_phone)
+        print(donor_details)
+
+        cur.execute("SELECT f_name,l_name,phone_no,org_name,org_location from volunteer where v_id=?",(volunteer_id,))
+        volunteer_details=cur.fetchall()[0]
+        print(volunteer_details)
+        # v_namef=cur.fetchone()[0][0]
+        # v_namel=cur.fetchone()[0][1]
+        # v_phone=cur.fetchone()[0][2]
+        # v_org_name=cur.fetchone()[0][3]
+        # v_org_loc=cur.fetchone()[0][4]
+        # v_name=v_namef+v_namel
+
+        # print(v_name,v_phone,v_org_name,v_org_loc)
+
+        cur.execute("SELECT f_location,pin_code from food_order where f_id=?",(food_id,))
+        food_details=cur.fetchall()[0]
+        print(food_details)
+        # del_loc=cur.fetchone()[0][0]
+        # del_pin=cur.fetchone()[0][1]
+        # print(del_loc,del_pin)        
 
 
-    subject = "Delivery"
+        cur.execute("SELECT email from delivery_info where del_id=?",(del_id,))
+        send_email=cur.fetchone()[0]
+        print(send_email)
 
-    msg = f"Subject:{subject}\n\n"
+        # subject = "New delivery order"
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
+        # msg = f"Subject:{subject}\n\n"
 
-    #INSERT YOUR E-MAIL ID AND PASSWORD
-    server.login("shreyasc.cs18@sahyadri.edu.in", "$kA19P9220")
-    server.sendmail("shreyasc.cs18@sahyadri.edu.in","shreyasc13@gmail.com", msg)
+        # server = smtplib.SMTP("smtp.gmail.com", 587)
+        # server.starttls()
 
-    server.quit()
+        # #INSERT YOUR E-MAIL ID AND PASSWORD
+        # server.login("reach.donate@gmail.com", "qJ6G3x1vknRX")
+        # server.sendmail("shreyasc.cs18@sahyadri.edu.in",send_email, msg)
 
-    messagebox.showinfo("Message Sent", "Message Sent Successfully")
+        # server.quit()
 
-def register_db(selection,fname,lname,phone,password,org_name,location):
+        # messagebox.showinfo("Message Sent", "Message Sent Successfully")
+
+def register_db(selection,fname,lname,phone,password,org_name,location,email):
 
     con=sqlite3.connect('reach2.db')
     cur=con.cursor()
+
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+
+    if(re.search(regex,email)):  
+        print("Valid Email")  
+            
+    else:  
+        messagebox.showwarning('INDEX ERROR','Enter a valid email.')
     
     cur.execute('SELECT phone_no from donor')
     volunteer_phone_no=cur.fetchall()
@@ -53,6 +102,20 @@ def register_db(selection,fname,lname,phone,password,org_name,location):
     donor_phone_no=cur.fetchall()
     cur.execute('SELECT del_phone from delivery_info')
     delivery_phone_no=cur.fetchall()
+
+    # print(password.isnumeric())
+
+    # phone=int(phone)
+
+    if phone.isnumeric()==True:
+        print('valid phone')
+    else:
+        messagebox.showwarning('INDEX ERROR','Enter a valid phone no.')
+        return
+
+    if len(phone)!=10 :
+        messagebox.showwarning('INDEX ERROR','Enter a valid 10 digit phone no')
+        return
 
     print(selection,fname,lname,phone,password)
     if selection=="D":
@@ -63,7 +126,7 @@ def register_db(selection,fname,lname,phone,password,org_name,location):
             messagebox.showinfo('INDEX ERROR','You already have an account')
 
         else:
-            cur.execute("INSERT INTO donor (f_name,l_name,phone_no,password) VALUES (?,?,?,?)",(fname,lname,phone,password))
+            cur.execute("INSERT INTO donor (f_name,l_name,phone_no,password,email) VALUES (?,?,?,?,?)",(fname,lname,phone,password,email))
         
        
     elif selection=="V":
@@ -75,8 +138,7 @@ def register_db(selection,fname,lname,phone,password,org_name,location):
             messagebox.showinfo('INDEX ERROR','You already have an account.')
 
         else:
-            # cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location) VALUES (?,?,?,?,?,?)",(fname,lname,phone,password,org_name,location))
-            print('else condition')
+            cur.execute("INSERT INTO volunteer (f_name,l_name,phone_no,password,org_name,org_location,email) VALUES (?,?,?,?,?,?,?)",(fname,lname,phone,password,org_name,location,email))
             messagebox.showinfo('INDEX ERROR','Registered as volunteer successfully.')
 
     elif selection=="DL":
@@ -88,7 +150,9 @@ def register_db(selection,fname,lname,phone,password,org_name,location):
 
 
         else:
-            cur.execute("INSERT INTO delivery_info(del_name,del_phone,del_password,del_location) VALUES(?,?,?,?)",(fname,phone,password,location))
+            cur.execute("INSERT INTO delivery_info(del_name,del_phone,del_password,del_location,email) VALUES(?,?,?,?,?)",(fname,phone,password,location,email))
+            messagebox.showinfo('INDEX ERROR','Registered as delivery rep successfully.')
+
 
     con.commit()
     con.close()
@@ -102,12 +166,13 @@ def food_db(d_id,food_type,foodname,quantity,address,pin):
         address=address.rstrip("\t")
 
         if food_type or quantity or address or pin=='':
-            messagebox.showwarning('INDEX ERROR', 'Enter the Food details.')
+            messagebox.showinfo('INDEX ERROR', 'Enter the Food details.')
         else:
 
             values=(d_id,food_type,foodname,quantity,address,pin,'1')
             print(values)
             cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code,status) VALUES (?,?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin,1))
+            messagebox.showinfo('INDEX ERROR', 'Thank you for donating..')
 
 def transaction_db(volunteer_id,food_id,delivery_id):
         with sqlite3.connect('reach2.db') as con:
@@ -131,6 +196,10 @@ def transaction_db(volunteer_id,food_id,delivery_id):
             
             cur.execute("INSERT INTO transactions(date_time,d_id,v_id,f_id,del_id) VALUES (?,?,?,?,?)",(date_time,donor_id,volunteer_id,food_id,delivery_id))
 
+            messagebox.showinfo('INDEX ERROR','Thank you, your order has been placed')
+
+            mail(delivery_id,volunteer_id,donor_id,food_id)
+
 def update_food_db(f_id,d_id,food_type,foodname,quantity,address,pin):
 
 
@@ -138,12 +207,15 @@ def update_food_db(f_id,d_id,food_type,foodname,quantity,address,pin):
         cur=con.cursor()
         address=address.rstrip("\n")
         address=address.rstrip("\t")
+        if f_id=='':
+            messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to update.')
+        else:   
+            values=(food_type,foodname,quantity,address,pin)
+            print(values)
+            cur.execute("UPDATE food_order SET f_type=?,f_name=?,quantity=?,f_location=?,pin_code=? where f_id=? and d_id=?",(food_type,foodname,quantity,address,pin,f_id,d_id))
+            messagebox.showinfo('INDEX ERROR', 'Updated successfully.')
 
-        values=(food_type,foodname,quantity,address,pin)
-        print(values)
-        cur.execute("UPDATE food_order SET f_type=?,f_name=?,quantity=?,f_location=?,pin_code=? where f_id=? and d_id=?",(food_type,foodname,quantity,address,pin,f_id,d_id))
-
-        donor_dash(d_id)
+            # donor_dash(d_id)
             
 def donor_dash(d_id):
     with sqlite3.connect('reach2.db') as con:
@@ -299,6 +371,7 @@ def delete_food(f_id,d_id):
                 messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to delete.')
             else:
                 cur.execute("UPDATE food_order SET status=? where f_id=? and d_id=?",(0,f_id,d_id))
+                messagebox.showinfo('INDEX ERROR', 'Deleted successfully.')
 
 
 def volunteer(v_id):
@@ -310,7 +383,7 @@ def volunteer(v_id):
 
         volunteer_frame.pack()
 
-        cur.execute("SELECT * FROM food_order")
+        cur.execute("SELECT f_id,f_type,f_name,quantity,f_location,pin_code FROM food_order")
         fd=cur.fetchall()
         # print(fd)
 
@@ -319,6 +392,10 @@ def volunteer(v_id):
         # print(di)
 
         volunteer_id=v_id
+
+        head_label = Label(volunteer_frame, text="Food",background="#0A79DF",fg="white",width=10,padx=14,pady=10,anchor=W)
+        head_label.config(font=("Bold",15))
+        head_label.grid(row=0,rowspan=1,column=2,columnspan=1,padx=10, pady=2)
 
         #food ID widget
         food_id_label = Label(volunteer_frame,text="Selected Food  Id", padx=20, pady=5, width=17, anchor=W)
@@ -344,24 +421,25 @@ def volunteer(v_id):
         for j in range(6):
             e = Entry(volunteer_frame, width=20, borderwidth=2, bg="#7f8c8d", fg='white', highlightthickness=2)
             e.config(highlightbackground = "#900C3F", highlightcolor= "#900C3F", relief=FLAT)
-            e.grid(row=0, column=j+2, padx=10, pady=2)
+            e.grid(row=1, column=j+2, padx=10, pady=2)
             e.insert(END, headers[j])
 
 
         for i in range(len(fd)):
-            for j in range(0,6):
+            for j in range(6):
 
                 e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
                 e.config(highlightbackground = "red", highlightcolor= "red", relief=FLAT)
-                e.grid(row=i+1, column=j+2, padx=10, pady=2)
+                e.grid(row=i+2, column=j+2, padx=10, pady=2)
                 e.insert(END, fd[i][j])
 
- 
+        head_label = Label(volunteer_frame, text="Delivery",background="#0A79DF",fg="white",width=10,padx=14,pady=10,anchor=W)
+        head_label.config(font=("Bold",15))
+        head_label.grid(row=len(fd)+2,rowspan=1,column=2,columnspan=1,padx=10, pady=2)
 
         del_headers=['Delivery ID','Name','Phone','Location']
 
-        m=len(fd)+2
-
+        m=len(fd)+3 
         for j in range(4):
             e = Entry(volunteer_frame, width=20, borderwidth=2, bg="#7f8c8d", fg='white', highlightthickness=2)
             e.config(highlightbackground = "#900C3F", highlightcolor= "#900C3F", relief=FLAT)
@@ -370,7 +448,7 @@ def volunteer(v_id):
 
 
         for i in range(len(di)):
-            for j in range(0,4):
+            for j in range(4):
 
 
                 e = Entry(volunteer_frame, width=20, borderwidth=2, highlightthickness=2)
@@ -555,11 +633,21 @@ def register():
         location_entry.config(font=8)
         location_entry.grid(row=7,column=1, padx=15,sticky=E)
 
+        #org location widget
+        email_label = Label(register_frame,text="Email", padx=5, pady=5, width=15, anchor=W)
+        email_label.config(font=("Bold",15))
+        email_label.grid(row=8,column=0, padx=15, pady=15, sticky=W)
+
+        email_entry = Entry(register_frame,borderwidth=3,width=15)
+        email_entry.config(font=8)
+        email_entry.grid(row=8,column=1, padx=15,sticky=E)
+
+
         
 
-        button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:register_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get(),org_name_entry.get(),location_entry.get()))
+        button_submit = Button(register_frame,text="Submit",padx=32,pady=9,fg="white",background="#0ABDE3",borderwidth=2,relief=RAISED, command=lambda:register_db(selection.get(),first_name_entry.get(),last_name_entry.get(),phone_entry.get(),reg_password_entry.get(),org_name_entry.get(),location_entry.get(),email_entry.get()))
         button_submit.config(font=("Helvetica", 15))
-        button_submit.grid(row=8, column=0, columnspan=3, padx=20, pady=20)
+        button_submit.grid(row=9, column=0, columnspan=3, padx=20, pady=20)
 
     # login frame
 def login():
@@ -604,6 +692,13 @@ def login():
             ph=reg_phone_entry.get()
             psw=log_password_entry.get()
 
+            if not ph.isnumeric():
+                messagebox.showwarning('INDEX ERROR','Enter a valid 10 digit phone no.')
+                return
+
+            if len(ph)!=10 :
+                messagebox.showwarning('INDEX ERROR','Enter a valid phone no')
+                return
             # print(ph,psw)
 
             if c=='D':

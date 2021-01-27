@@ -19,7 +19,8 @@ cur.execute("""CREATE TABLE volunteer(
     phone_no integer UNIQUE,
     password text NOT NULL,
     org_name text,
-    org_location text
+    org_location text,
+    email text
 )
 """)
 
