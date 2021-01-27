@@ -36,52 +36,56 @@ def mail(del_id,volunteer_id,donor_id,food_id):
         cur.execute("SELECT f_name,l_name,phone_no from donor where d_id=?",(donor_id,))
         donor_details=cur.fetchall()[0]
         
-        d_namef=([x[0] for x in donor_details])
-        d_namel=([x[1] for x in donor_details])
-        d_phone=([x[2] for x in donor_details])
-        # d_name=d_namef+d_namel
+        d_namef=donor_details[0]
+        d_namel=donor_details[1]
+        d_phone=donor_details[2]
+        d_name=d_namef+" "+d_namel
 
-        print(d_namef,d_namel,d_phone)
-        print(donor_details)
+        print(d_name,d_namel,d_phone)
+        # print(donor_details)
 
         cur.execute("SELECT f_name,l_name,phone_no,org_name,org_location from volunteer where v_id=?",(volunteer_id,))
         volunteer_details=cur.fetchall()[0]
-        print(volunteer_details)
-        # v_namef=cur.fetchone()[0][0]
-        # v_namel=cur.fetchone()[0][1]
-        # v_phone=cur.fetchone()[0][2]
-        # v_org_name=cur.fetchone()[0][3]
-        # v_org_loc=cur.fetchone()[0][4]
-        # v_name=v_namef+v_namel
+        # print(volunteer_details)
+        v_namef=volunteer_details[0]
+        v_namel=volunteer_details[1]
+        v_phone=volunteer_details[2]
+        v_org_name=volunteer_details[3]
+        v_org_loc=volunteer_details[4]
+        v_name=v_namef+" "+v_namel
 
-        # print(v_name,v_phone,v_org_name,v_org_loc)
+        print(v_name,v_phone,v_org_name,v_org_loc)
 
         cur.execute("SELECT f_location,pin_code from food_order where f_id=?",(food_id,))
         food_details=cur.fetchall()[0]
-        print(food_details)
-        # del_loc=cur.fetchone()[0][0]
-        # del_pin=cur.fetchone()[0][1]
-        # print(del_loc,del_pin)        
+        # print(food_details)
+        del_loc=food_details[0]
+        del_pin=food_details[1]
+        print(del_loc,del_pin)        
 
 
         cur.execute("SELECT email from delivery_info where del_id=?",(del_id,))
         send_email=cur.fetchone()[0]
         print(send_email)
 
-        # subject = "New delivery order"
+        subject = "New delivery order"
 
-        # msg = f"Subject:{subject}\n\n"
+        order="Donor name:"+d_name+"\n"+"Donor phone no.:"+str(d_phone)+"\n"+"Pickup location:"+del_loc+" "+str(del_pin)+"\n"+"Volunteer name:"+v_name+"\n"+"Volunteer phone no.:"+str(v_phone)+"\n"+"Drop off location:"+v_org_name+"\n"+v_org_loc
 
-        # server = smtplib.SMTP("smtp.gmail.com", 587)
-        # server.starttls()
+        # print(order)
 
-        # #INSERT YOUR E-MAIL ID AND PASSWORD
-        # server.login("reach.donate@gmail.com", "qJ6G3x1vknRX")
-        # server.sendmail("shreyasc.cs18@sahyadri.edu.in",send_email, msg)
+        msg = f"Subject:{subject}\n\n{order}"
 
-        # server.quit()
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
 
-        # messagebox.showinfo("Message Sent", "Message Sent Successfully")
+        #INSERT YOUR E-MAIL ID AND PASSWORD
+        server.login("reach.donate@gmail.com", "qJ6G3x1vknRX")
+        server.sendmail("shreyasc.cs18@sahyadri.edu.in",send_email, msg)
+
+        server.quit()
+
+        messagebox.showinfo("Message Sent", "Message Sent Successfully")
 
 def register_db(selection,fname,lname,phone,password,org_name,location,email):
 
