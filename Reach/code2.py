@@ -248,7 +248,7 @@ def donor_dash(d_id):
         dd=cur.fetchall()
         print(dd)
 
-        headers=['Food Id','Food Type','Food Name','Quantity','f_location','Pin Code']
+        headers=['Food Id','Food Type','Food Name','Quantity','Location','Pin Code']
         
         for j in range(6):
             e = Entry(donor_dash_frame, width=20, borderwidth=2, bg="#7f8c8d", fg='white', highlightthickness=2)
@@ -424,7 +424,7 @@ def volunteer(v_id):
         delivery_id_entry.config(font=8)
         delivery_id_entry.grid(row=3, column=1, padx=10, pady=2)
 
-        headers=['Food Id','Food Type','Food Name','Quantity','f_location','Pin Code']
+        headers=['Food Id','Food Type','Food Name','Quantity','Loacation','Pin Code']
         
         for j in range(6):
             e = Entry(volunteer_frame, width=20, borderwidth=2, bg="#7f8c8d", fg='white', highlightthickness=2)
