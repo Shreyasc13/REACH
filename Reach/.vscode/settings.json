@@ -14,5 +14,6 @@
             "password": "reach123",
             "connectionTimeout": 60
         }
-    ]
+    ],
+    "python.pythonPath": "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
 }

@@ -208,6 +208,13 @@ def transaction_db(volunteer_id,food_id,delivery_id):
 
             cur.execute("UPDATE food_order SET status=? where f_id=? and d_id=?",(0,food_id,donor_id))
 
+            # cur.execute("""
+            #     CREATE TRIGGER update_status AFTER INSERT ON transactions
+            #     BEGIN UPDATE food_order SET status=0 WHERE f_id=new.f_id and d_id=new.d_id;
+            #     END
+            # """)
+
+
 def update_food_db(f_id,d_id,food_type,foodname,quantity,address,pin):
 
 
@@ -219,7 +226,7 @@ def update_food_db(f_id,d_id,food_type,foodname,quantity,address,pin):
             messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to update.')
         else:   
             values=(food_type,foodname,quantity,address,pin)
-            print(values)
+            # print(values)
             cur.execute("UPDATE food_order SET f_type=?,f_name=?,quantity=?,f_location=?,pin_code=? where f_id=? and d_id=?",(food_type,foodname,quantity,address,pin,f_id,d_id))
             messagebox.showinfo('INDEX ERROR', 'Updated successfully.')
 
@@ -246,7 +253,7 @@ def donor_dash(d_id):
 
         cur.execute("SELECT f_id,f_type,f_name,quantity,f_location,pin_code FROM food_order WHERE d_id=? and status=?",(donor_id,'1',))
         dd=cur.fetchall()
-        print(dd)
+        # print(dd)
 
         headers=['Food Id','Food Type','Food Name','Quantity','Location','Pin Code']
         
@@ -298,7 +305,7 @@ def update_food(f_id,d_id):
             messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to delete.')
         else:        
 
-            cur.execute("SELECT f_id,f_type,f_name,quantity,f_location,pin_code FROM food_order WHERE f_id=?",(f_id))
+            cur.execute("SELECT f_id,f_type,f_name,quantity,f_location,pin_code FROM food_order WHERE f_id=?",(f_id,))
             uf=cur.fetchall()
 
             food_id=f_id
@@ -375,11 +382,30 @@ def delete_food(f_id):
         with sqlite3.connect('reach2.db') as con:
             cur=con.cursor()
 
+            food_details=cur.execute("SELECT * FROM food_order where f_id=?",(f_id,)).fetchall()
+            food_id=food_details[0][0]
+            d_id=food_details[0][1]
+            f_type=food_details[0][2]
+            f_name=food_details[0][3]
+            quantity=food_details[0][4]
+            f_location=food_details[0][5]
+            pin_code=food_details[0][6]
+            status=food_details[0][7]
+
+
             if f_id=='':
                 messagebox.showwarning('INDEX ERROR', 'Enter the Food ID you want to delete.')
             else:
                 cur.execute("DELETE FROM food_order where f_id=?",(f_id,))
+                print(food_details[0][0])
                 messagebox.showinfo('INDEX ERROR', 'Deleted successfully.')
+
+                # cur.execute("""CREATE TRIGGER after_delete AFTER DELETE ON food_order 
+                # BEGIN 
+                # INSERT INTO delete_log(f_id,d_id,f_type,f_name,quantity,f_location,pin_code) VALUES(food_id,d_id,f_type,f_name,quantity,f_location,pin_code,status); 
+                # END
+                # """)
+
 
 
 def volunteer(v_id):
@@ -572,10 +598,10 @@ def register():
 
 
         def rem_del():
-            last_name_label['state']='disabled'
-            last_name_entry['state']='disabled'
             org_name_label['state']='disabled'
             org_name_entry['state']='disabled'
+            location_label['state']='normal'
+            location_entry['state']='normal'
 
         selection=StringVar()
 
