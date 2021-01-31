@@ -178,6 +178,8 @@ def food_db(d_id,food_type,foodname,quantity,address,pin):
             values=(d_id,food_type,foodname,quantity,address,pin,'1')
             print(values)
             cur.execute("INSERT INTO food_order(d_id,f_type,f_name,quantity,f_location,pin_code,status) VALUES (?,?,?,?,?,?,?)",(d_id,food_type,foodname,quantity,address,pin,1))
+
+            cur.execute("INSERT INTO location(pin_code,l_location) VALUES (?,?)",(pin,address))
             messagebox.showinfo('INDEX ERROR', 'Thank you for donating.')
 
 def transaction_db(volunteer_id,food_id,delivery_id):
@@ -202,11 +204,15 @@ def transaction_db(volunteer_id,food_id,delivery_id):
             
             cur.execute("INSERT INTO transactions(date_time,d_id,v_id,f_id,del_id) VALUES (?,?,?,?,?)",(date_time,donor_id,volunteer_id,food_id,delivery_id))
 
-            messagebox.showinfo('INDEX ERROR','Thank you, your order has been placed')
+            cur.execute("INSERT INTO appoint(del_id,v_id) VALUES (?,?)",(delivery_id,volunteer_id))
+
+            messagebox.showinfo('Successful','Thank you, your order has been placed')
+
+
+            cur.execute("UPDATE food_order SET status=? where f_id=? and d_id=?",(0,food_id,donor_id))
 
             mail(delivery_id,volunteer_id,donor_id,food_id)
 
-            cur.execute("UPDATE food_order SET status=? where f_id=? and d_id=?",(0,food_id,donor_id))
 
             # cur.execute("""
             #     CREATE TRIGGER update_status AFTER INSERT ON transactions
